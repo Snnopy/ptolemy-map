@@ -1,0 +1,51 @@
+
+.background{
+    background-image: url('../Common/fm.png');
+    flex-direction:column;
+    position:fixed;
+    height: 100%;
+    width: 100%;
+  }
+  .main{
+    flex-direction:column;
+    flex-wrap:wrap;  /* 换行 */
+    align-content:flex-start; /* 换行不出现空格 */ 
+    margin-top:400px;
+    margin-left:150px;
+  }
+  .button-1{
+    font-size: 32px;
+    font-family: '微软雅黑';
+    margin-top: 50px;
+    width:450px;
+    height:70px;
+    color:white;
+    background: linear-gradient(rgb(50, 200, 150),rgb(0, 150, 120));
+  }
+  .button-2{
+    font-size: 32px;
+    font-family: '微软雅黑';
+    margin-top: 50px;
+    width:450px;
+    height:70px;
+    color:white;
+    border-width:3px;
+    border-color:white;
+    background-color: transparent;
+  }
+  
+  .input-frame {
+    width:450px;
+    margin-top: 30px;
+    border-bottom-width: 3px;
+    border-color:#f0f8ff;
+  }
+  .input-text {
+    height:80px; /* 自身内容需要的高度 */
+    width:450px;
+    margin-left:20px;
+    font-size: 32px;
+    font-family: '微软雅黑';
+    color:#f0f8ff;
+    placeholder-color:white;
+  }

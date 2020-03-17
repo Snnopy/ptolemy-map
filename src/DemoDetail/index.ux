@@ -1,0 +1,195 @@
+
+<template>
+<div class="main">
+    <div class="footer-container">
+      
+      <input class="button" type="button" value="+" onclick="largeScale"></input>
+      <input class="button" type="button" value="-" onclick="smallScale"></input>
+      <input class="button" type="button" value="B" onclick="middleScale"></input>
+
+      <select class="button" onchange="pickMap" >
+        <option for="{{floor}}"   selected={{$item.selected}}>{{$item.id}}</option>
+      </select>
+    </div>
+    <div class="content" >
+       <canvas id="indoormap" ontouchstart ='onMouseDown' ontouchmove='onMouseMove'></canvas>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+import fetch from '@system.fetch'
+
+export default{
+  data:{
+    MAPINFO:[],
+    floor:[
+      {'owner':'building1','id':-1,'selected':'true','mapUrl':'http://192.168.1.106:8000/static/building1/map1.txt'},
+      {'owner':'building1','id':2,'selected':'false','mapUrl':'http://192.168.1.106:8000/static/building1/map2.txt'},
+      {'owner':'building1','id':3,'selected':'false','mapUrl':'http://192.168.1.106:8000/static/building1/map3.txt'}
+    ],
+    x1:'', //平移用的坐标
+    x2:'',
+    y1:'',
+    y2:'',
+    devX:0,
+    devY:0,
+    mapUrl:'',//地图信息url
+    canvas:'',
+    context2D:'',
+    imgScale:1,
+  },
+  onInit() {  
+    for(var i=0;i<this.floor.length;i++){
+      if(this.floor[i].selected=='true'){
+        this.mapUrl=this.floor[i].mapUrl
+      }
+    }
+    fetch.fetch({
+      url:this.mapUrl,
+      success: res=>{
+        this.MAPINFO=JSON.parse(res.data)
+        
+        this.canvas = this.$element('indoormap') //获取 canvas 组件
+        this.context2D = this.canvas.getContext('2d') //获取 canvas 
+        
+        this.DrawMapInfo()
+      }
+    })
+    
+  },
+  pickMap(e){
+    for(var i=0;i<this.floor.length;i++){
+      if(this.floor[i].id==e.newValue){
+        this.mapUrl=this.floor[i].mapUrl
+      }
+    }
+    fetch.fetch({
+      url:this.mapUrl,
+      success: res=>{
+        this.MAPINFO=JSON.parse(res.data)     
+        this.DrawMapInfo()
+      }
+    })
+    this.DrawMapInfo() 
+  },
+  onMouseDown(event){
+    const data=event.touches[0]
+    this.x1=data.clientX
+    this.y1=data.clientY
+  },
+  onMouseMove(event){
+    //擦除原来的图片
+    this.clearImage()
+
+    const data=event.touches[0]
+    this.x2=data.clientX
+    this.y2=data.clientY
+    this.devX+=this.x2-this.x1
+    this.devY+=this.y2-this.y1
+    //console.log(event.touches[0])
+    this.DrawMapInfo()
+
+    this.x1=this.x2
+    this.y1=this.y2
+    
+  },
+  clearImage(){
+    this.context2D.clearRect(0,0,1500,1500)
+  },
+  largeScale(){
+    
+    if(this.imgScale<1.6){this.imgScale+=0.2}
+    this.DrawMapInfo()
+  },
+  smallScale(){
+
+    if(this.imgScale>0.6)this.imgScale-=0.2
+
+    this.DrawMapInfo()
+  },
+  middleScale(){
+    this.imgScale=1
+    this.devX=0
+    this.devY=0
+    this.DrawMapInfo()
+  },
+  DrawMapInfo:function(){
+    this.clearImage()
+    for (var i = 0; i < this.MAPINFO.length; i++) {
+      this.DrawBlock(this.context2D,this.MAPINFO[i].x*this.imgScale+this.devX, 
+        this.MAPINFO[i].y*this.imgScale+this.devY, 
+        this.MAPINFO[i].width*this.imgScale, this.MAPINFO[i].height*this.imgScale, 
+        this.MAPINFO[i].title,  this.MAPINFO[i].color,  this.MAPINFO[i].textcolor, 
+        this.MAPINFO[i].bordercolor, this.MAPINFO[i].imageurl)
+    }
+  },
+  DrawBlock:function(context2D,x, y, width, height, text, backgroudcolor, textcolor, bordercolor, imageurl) {
+
+    //画框图
+    context2D.fillStyle = backgroudcolor
+    context2D.fillRect(x, y, width, height)
+    
+    //画边界
+    context2D.strokeStyle = bordercolor
+    context2D.lineWidth = 0.8
+    context2D.strokeRect(x, y, width, height)
+    //画文字和图标，文字小则不画图
+    context2D.fillStyle = textcolor
+    const textsize = width * height / 2000
+    //console.log(textsize)
+    if (textsize > 15) {
+      context2D.font = 20 + 'pt Microsoft YaHei'
+      if (imageurl != "") {  //画图标
+        const image = new Image()
+        image.src = imageurl
+        //image.onload = () => {
+        context2D.drawImage(image, x + width / 7, y + height / 2 - 25 , 30, 30)
+        //}
+      }
+    } 
+    else {
+      context2D.font = 15 + 'pt Microsoft YaHei'
+    }
+    context2D.fillText(text, x + width / 7 + 40, y + height / 2)
+  },
+}
+</script>
+
+<style>
+  .main{
+    background-color: rgba(220, 241, 220, 0.856);
+    flex-direction:column;
+    flex-wrap:wrap;  
+    align-content:flex-start; 
+  }
+  .indoormap{
+    width:100px;
+    height:100px;
+  }
+  .content{
+    width:100%;
+    height:1500px;
+  }
+  .footer-container {	
+      position: fixed;
+      flex-direction:column;	
+      width:100px;
+      height: 600px;	
+      top:400px;	
+      left:0;	
+      background-color: transparent;
+  }
+  .button{
+    text-align: center;
+    font-size: 40px;
+    font-family: '微软雅黑';
+    margin-top:40px;
+    width:100px;
+    height:100px;
+    color:white;
+    background: linear-gradient(rgb(50, 200, 150),rgb(0, 150, 120));
+  }
+
+</style>

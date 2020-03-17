@@ -1,0 +1,108 @@
+<template>
+  <div class="background">
+    
+    <div class="main">
+      <!-- 手机，密码 -->
+      <div class="input-frame">
+        <image class="tubiao"  src="../Common/people.png"></image>
+        <input class="input-text" type="text" autocomplete="on" placeholder="用户名" onchange="inputUser"></input>
+      </div>
+
+      <div class="input-frame">
+        <image class="tubiao" src="../Common/password.png"></image>
+        <input class="input-text" type="password" placeholder="密码" onchange="inputPwd"></input>
+      </div>
+      
+      <!-- 忘记密码 -->
+      <text class="forgetPwd" onclick="resetpwd" style="">? 忘记密码</text>
+      <!-- 登陆，注册 -->
+      <input class="button-1" type="button" value="登 录" onclick="signin"></input>
+      <input class="button-2" type="button" value="注 册" onclick="signup"></input>
+      <div class="bottom-fill"></div>
+    </div>
+    
+  </div>
+
+</template>
+
+<script>
+import router from '@system.router'
+import fetch from '@system.fetch'
+import prompt from '@system.prompt'
+
+export default{
+  
+  data: {
+    uname:'',
+    upwd: ''
+  },
+  signin(){
+   
+    fetch.fetch({
+      url:'http://192.168.1.106:8000/user/login/',
+      data:{
+        uname:this.uname,
+        upwd:this.upwd
+      },
+      method:'post',
+      success: res=>{
+        console.log(res.data)
+        //console.log(this.uname)
+        /*如果登录成功,进入页面 */ 
+        if(res.data=='false'){
+          prompt.showDialog({
+            message: '密码或用户名错误！',
+            buttons: [{text: '确定',color: '#33dd44'}],
+          })
+        }
+        else{
+          const appDef = this.$app.$def
+          appDef.uname = this.uname
+          appDef.ustatus = res.data
+          
+          router.push({
+            uri: '/Home'
+          })
+        }
+      }
+    })
+  },
+  signup(){
+    /*注册*/ 
+    router.push({
+      uri: '/SignUp'
+    })
+  },
+  inputUser(e){
+    this.uname=e.value
+  },
+  inputPwd(e){
+    this.upwd=e.value
+  },
+  resetpwd(){
+    /* 忘记密码 */ 
+    router.push({
+      uri: '/ResetPwd'
+    })
+  }
+
+}
+</script>
+
+<style>
+  @import '../Common/css/common.css'; 
+  .bottom-fill {	
+        position: fixed;	
+        height: 130px;		
+        bottom: 0;	
+        margin-bottom: 0;	
+    }
+  .forgetPwd{
+    margin-top:60px;
+    margin-left:300px;
+    font-size: 30px;
+    font-family: '微软雅黑';
+    color: white;
+  }
+  
+</style>

@@ -1,0 +1,117 @@
+<import name='FirstPage' src="../Home/homepage.ux"></import>
+
+<import name='MyInfo' src="../Home/myinfo.ux"></import>
+
+<!--<import name='MyMap' src="../Home/mymap.ux"></import>-->
+<import name='MyMap' src="../DemoDetail/index.ux"></import>		
+<template>
+  <div class="container">	
+    <!--根据不同的flag显示不同的页面-->	
+    <block if="{{flag==0}}">	
+        <FirstPage> </FirstPage>
+    </block>		
+	<block elif="{{flag==1}}">	
+        <MyMap flag={{flag2}}></MyMap>	
+    </block>
+    <block elif="{{flag==2}}">	
+        <MyInfo></MyInfo>	
+    </block>
+    <tabs>	
+        <tab-bar class="footer-container">	
+            <!--遍历tabBar.list，生成导航栏-->	
+            <block for='tabBar.list'>	
+                <div class="footer-item" onclick="setIndex($idx)">	
+                    <!--$idx为tabBar.list当前的索引值，以0开始-->	
+                    <!--如果当前页面被选中-->	
+                    <block if='{{$idx==flag}}'>	
+                        <!--icon-->	
+                        <image src="{{tabBar.list[$idx].selected_icon}}" class="footer-item-img"></image>	
+                        <!--页面标签值-->	
+                        <text class="tab-text" style="color: {{tabBar.list[$idx].selected_color}}">{{tabBar.list[$idx].name}}</text>	
+                    </block>	
+                    <!--当前页面未被选中-->	
+                    <block else>	
+                        <image src="{{tabBar.list[$idx].icon}}" class="footer-item-img"></image>	
+                        <text class="tab-text" style="color: {{tabBar.list[$idx].color}}">{{tabBar.list[$idx].name}}</text>	
+                    </block>	
+                </div>	
+            </block>	
+        </tab-bar>	
+    </tabs>
+  </div>
+
+</template>
+
+<script>
+module.exports = {	
+  data: {	
+    flag: 0,//默认为 0 首页，1 地图，2 我的	
+    flag2: 0, //默认为 0 逃生规划，1 模拟演习，2 救援指引 3设备监控
+    tabBar: {	
+      list: [{	
+        name: '首页',//当前页面标签值	
+        icon: '../Common/home.png',//未选中icon地址	
+        color: '#666666',//未选中时文本颜色	
+        selected_color: '#1296db',//选中时文本颜色	
+        selected_icon: '../Common/home2.png'//选中是icon地址	
+      }, {	
+        name: '地图',	
+        icon: '../Common/map.png',	
+        color: '#666666',	
+        selected_color: '#1296db',	
+        selected_icon: '../Common/map2.png'	
+      }, {	
+        name: '我的',	
+        icon: '../Common/my.png',	
+        color: '#666666',	
+        selected_color: '#1296db',	
+        selected_icon: '../Common/my2.png'	
+      }]	
+    }	
+  },	
+  //初始化，进入界面加载的事件	
+  onInit() {	
+    //设置页面title	
+    //this.$page.setTitleBar({ text:  this.tabBar.list[this.flag].name})
+    //console.log(this.flag2)
+  },	
+  //修改flag实现点击导航栏显示不同的页面，pos为传入的参数	
+  setIndex: function (pos) {	
+    //设置flag，flag改变后显示的页面也会对应的改变	
+    this.flag = pos	
+    //设置页面标题	
+    this.$page.setTitleBar({ text: this.tabBar.list[pos].name })	
+  }	
+}    	
+
+</script>
+
+<style>
+    .container {	
+        flex-direction:column;
+        height: 100%;
+        width: 100%;
+    }	
+    .footer-container {	
+        position: fixed;	
+        height: 130px;		
+        bottom: 0;	
+        margin-bottom: 0;	
+        background-color: black;	
+    }	 
+    .footer-item {	
+        width: 25%;	
+        display: flex;	
+        flex-direction: column;	
+    }	
+    .footer-item-img {	
+        margin-left: 65px;	
+        width: 50px;	
+        height: 50px;	
+    }	
+    .tab-text {	
+        text-align: center;	
+        font-size: 35px;
+        font-family: '微软雅黑';
+    }
+</style>

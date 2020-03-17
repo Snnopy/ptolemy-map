@@ -1,0 +1,186 @@
+<template>
+  <div class="background">
+    <div class="main">
+
+      <div class="input-frame">
+        <image src="../Common/password.png"></image>
+        <input class="input-text" type="password" placeholder='新密码' onchange="changePwd"></input>
+      </div>
+
+      <div class="input-frame">
+        <image  src="../Common/checkPwd.png"></image>
+        <input  class="input-text" type="password" placeholder='确认密码' onchange="changePwd2"></input>
+      </div>
+
+      <div class="input-frame">
+        <image  src="../Common/phone.png"></image>
+        <input  class="input-text" placeholder='请输入手机号' onchange="changePhoneNum"></input>
+      </div>
+
+      <input class="button-1" type="button" value="{{captchaBtnVal}}" disabled='{{btnDisabled}}' onclick="getCode" />
+
+      <div class="input-frame">
+        <image  src="../Common/checkPwd.png"></image>
+        <input class="input-text" type="text" placeholder='请输入验证码' onchange="changeCaptcha"></input>
+      </div> 
+
+      <input class="button-1" type="button" value="提 交" onclick="sub" />
+      <input class="button-2" type="button" value="返 回" onclick="back"></input>
+
+    </div>
+  </div>
+</template>
+
+<script>
+import prompt from '@system.prompt'
+import fetch from '@system.fetch'
+import router from '@system.router'
+
+export default {
+  data: {
+    phoneNum: '',//手机号
+    captcha: '', //验证码
+    captchaBtnVal: '获取验证码',
+    btnDisabled: false,  
+    upwd:'',   
+    againpwd:'',
+    realcapt:'',        //验证码
+    checkPhone:false,   //手机号是否有效
+    cnt:0  //成功提交次数，防止反复提交
+  },
+  back(){
+    router.back()
+  },
+  changePhoneNum(e){
+    this.phoneNum=e.value
+  },
+  changeCaptcha(e){
+    this.captcha=e.value
+  },
+  changePwd(e){
+    this.upwd=e.value
+  },
+  changePwd2(e){
+    this.againpwd=e.value
+  }
+  ,
+  getCode () {
+    var that = this
+
+    that.realcapt=''
+    for(var i=1;i<=4;i++)  {
+      that.realcapt+=Math.floor(Math.random()*10)
+    }
+    
+    fetch.fetch({
+      url: 'http://sms_developer.zhenzikj.com/sms/send.do',
+      header: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      method: 'POST',
+      responseType: 'json',
+      data: {
+        appId: '104487',
+        appSecret: '2b60e1b1-60a1-47f5-821f-8eb4389eb1ca',
+        message: 'P-Map用户 您的验证码: '+that.realcapt,
+        number: that.phoneNum,
+        messageId: ''
+      },
+      success: res=>{
+        //console.log(res.data)
+        const t=res.data
+        if(t.code=='100'){
+          prompt.showDialog({
+            message: '手机号码错误！',
+            buttons: [{text: '确定',color: '#33dd44'}],
+          })
+        }
+        else if(t.code=='0'){
+          this.checkPhone=true
+        }
+      },
+      complete: function (ret) {
+        if(ret.data.code == 0){
+          that.timer()
+        }
+      }
+    })
+  },
+  sub () {
+    /*console.log(this.realcapt)
+    console.log(this.upwd)
+    console.log(this.againpwd)
+    console.log(this.phoneNum)*/
+    if(this.cnt>0){
+      prompt.showDialog({
+        message: '您已经提交，请返回',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })      
+    }
+    else if(this.againpwd!=this.upwd){
+      prompt.showDialog({
+        message: '前后密码不相同！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    else if(this.realcapt!=this.captcha){
+      prompt.showDialog({
+        message: '验证码错误！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    else if(this.checkPhone==false){
+      prompt.showDialog({
+        message: '号码错误！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    
+    else{
+      fetch.fetch({
+        url:'http://192.168.1.106:8000/user/reset/',
+        data:{
+          uphone:this.phoneNum,
+          upwd:this.upwd
+        },
+        method:'post',
+        success: res=>{
+          //console.log(res.data)
+          if(res.data=='fail'){
+            prompt.showDialog({
+              message: '提交失败，此号码未注册！',
+              buttons: [{text: '确定',color: '#33dd44'}],
+            })
+          }
+          else{
+            prompt.showDialog({
+              message: '提交成功！',
+              buttons: [{text: '确定',color: '#33dd44'}],
+            })
+            this.cnt++
+          }
+        }
+      })
+    }
+  },
+  //60秒倒计时
+  timer: function () {
+    var that = this
+    var second = 60
+    that.btnDisabled = true
+    var setTimer = setInterval(function(){
+      that.captchaBtnVal = second+'秒'
+      second--
+      if(second <= 0){
+        that.captchaBtnVal = '获取验证码'
+        that.btnDisabled = false
+        clearInterval(setTimer)
+      }
+    }, 1000)
+  }
+}
+</script>
+
+<style>
+  @import '../common/css/common.css';
+</style>

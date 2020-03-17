@@ -1,0 +1,120 @@
+<template>
+<canvas id="indoormap"></canvas>
+</template>
+
+<script>
+
+export default{
+  data:{
+    MAPINFO:[{
+      title: 'Toilet',
+      x: 0,
+      y: 0,
+      width: 171,
+      height: 283,
+      color: "rgba(76, 181, 216, 0.2)",
+      textcolor: "black",
+      bordercolor: "rgba(76, 181, 216, 1)",
+      imageurl: '../Common/web/images/Toilet.png',
+    },{
+      title: 'UNIQLO',
+      x: 0,
+      y: 284,
+      width: 171,
+      height: 286,
+      color: "rgba(230, 110, 250, 0.2)",
+      textcolor: "black",
+      bordercolor: "rgba(230, 110, 250, 1)",
+      imageurl: '../Common/web/images/UNIQLO.png',
+    },{
+      title: '',
+      x: 0,
+      y: 570.5,
+      width: 171,
+      height: 246,
+      color: "rgba(230, 110, 250, 0.2)",
+      textcolor: "black",
+      bordercolor: "rgba(230, 110, 250, 1)",
+      imageurl: '',
+    },{
+      title: 'Stairs',
+      x: 0,
+      y: 871,
+      width: 119,
+      height: 223,
+      color: "rgba(225, 215, 155, 0.1)",
+      textcolor: "black",
+      bordercolor: "rgba(220, 169, 105, 1)",
+      imageurl: '../Common/web/images/Stairs.png',
+    },{
+      title: 'Nike',
+      x: 600,
+      y: 0,
+      width: 194,
+      height: 352,
+      color: "rgba(230, 110, 250, 0.2)",
+      textcolor: "black",
+      bordercolor: "rgba(230, 110, 250, 1)",
+      imageurl: '../Common/web/images/Nike.png',
+    },{
+      title: 'New Balance',
+      x: 600,
+      y: 352,
+      width: 194,
+      height: 306,
+      color: "rgba(230, 110, 250, 0.2)",
+      textcolor: "black",
+      bordercolor: "rgba(230, 110, 250, 1)",
+      imageurl: '../Common/web/images/NB.png',
+    },],
+  },
+  onShow() {  
+    this.DrawMapInfo(1,1,1,1)
+  },
+  DrawMapInfo:function(scaleX, scaleY, offsetX, offsetY){
+    for (var i = 0; i < this.MAPINFO.length; i++) {
+      this.DrawBlock(this.MAPINFO[i].x * scaleX + offsetX, 
+        this.MAPINFO[i].y * scaleY  + offsetY, 
+        this.MAPINFO[i].width * scaleX, 
+        this.MAPINFO[i].height * scaleY, 
+        this.MAPINFO[i].title, this.MAPINFO[i].color, 
+        this.MAPINFO[i].textcolor, 
+        this.MAPINFO[i].bordercolor, 
+        this.MAPINFO[i].imageurl)
+    }
+  },
+  DrawBlock:function(x, y, width, height, text, backgroudcolor, textcolor, bordercolor, imageurl) {
+    const canvas = this.$element('indoormap') //获取 canvas 组件
+    const context2D = canvas.getContext('2d') //获取 canvas 绘图上下文
+
+    const zoomScale=750/720
+    const textsize = width * height / (1000 * zoomScale * zoomScale)
+
+    context2D.fillStyle = backgroudcolor
+    context2D.fillRect(x, y, width, height)
+    context2D.strokeStyle = bordercolor
+    context2D.lineWidth = 0.8
+    context2D.strokeRect(x, y, width, height)
+    context2D.fillStyle = textcolor
+    
+    if (textsize > 15) {
+      context2D.font = 20 * zoomScale + "pt Microsoft YaHei"
+      if (imageurl != "") {
+        const image = new Image()
+        image.src = imageurl
+        image.onload = () => {
+          context2D.drawImage(image, x + width / 7, y + height / 2 - 25 * zoomScale, 30 * zoomScale, 30 * zoomScale)
+        }
+      }
+    } 
+    else {
+      context2D.font = 0 + "pt Microsoft YaHei"
+    }
+    context2D.fillText(text, x + width / 7 + 40 * zoomScale, y + height / 2)
+  },
+}
+</script>
+
+<style>
+
+</style>

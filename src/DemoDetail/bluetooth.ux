@@ -1,0 +1,191 @@
+<template>
+  <div class="doc-page">
+    <div class="page-title-wrap">
+      <text class="page-title">{{componentName}}</text>
+    </div>
+    <div class="item-container">
+      <input type="button" class="btn" onclick="openAdapter" value="开始扫描" />
+      <input type="button" class="btn" onclick="stopDevicesDiscovery" value="停止扫描" />
+      <input type="button" class="btn" onclick="closeAdapter" value="结束流程" />
+
+      <text class="devices-title">{{'已发现' + deviceLen + '个外围设备，点击设备进行连接'}}</text>
+      <list class="list">
+        <list-item class="device" for="{{devices}}" onclick="createBLEConnection($item)" type="{{$idx}}">
+          <text class="device-name">{{$item.name}}:{{$item.deviceId}}</text>
+        </list-item>
+      </list>
+
+      <input type="button" class="btn" onclick="closeBLEConnection" value="断开连接" />
+    </div>
+  </div>
+</template>
+
+<style>
+.doc-page {
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .item-container {
+    flex-direction: column;
+    margin-bottom: 50px;
+    margin-right: 60px;
+    margin-left: 60px;
+  }
+
+  .text {
+    width: 100%;
+    margin-top: 5px;
+    background-color: white;
+    padding: 3px;
+    margin-top: 1px;
+    font-size: 28px;
+    color: black;
+  }
+
+  .btn {
+    height: 80px;
+    text-align: center;
+    border-radius: 5px;
+    margin-right: 60px;
+    margin-left: 60px;
+    margin-bottom: 50px;
+    color: #ffffff;
+    font-size: 30px;
+    background-color: #0faeff;
+    line-height: 80px;
+  }
+
+  .item-container {
+    flex-direction: column;
+    margin-bottom: 50px;
+    margin-right: 60px;
+    margin-left: 60px;
+  }
+
+  .column {
+    flex-direction: column;
+  }
+
+  .desc {
+    flex-direction: column;
+    padding: 0 60px 20px 60px;
+  }
+
+  .devices-title {
+    width: 100%;
+    text-align: center;
+  }
+
+  .list {
+    width: 100%;
+    height: 500px;
+  }
+
+  .device {
+    flex-direction: column;
+    margin: 10px 0;
+  }
+
+  .device-name {
+    width: 100%;
+    line-height: 50px;
+    text-align: center;
+    border: 1px solid #eee;
+  }
+
+  .list text {
+    color: #333;
+  }
+</style>
+
+<script>
+  import bluetooth from '@system.bluetooth'
+  import prompt from '@system.prompt'
+
+  export default {
+    private: {
+      componentName: 'Bluetooth',
+      devices: [],
+      deviceLen: 0,
+      deviceId: ''
+    },
+    onInit () {
+      this.$page.setTitleBar({ text: '蓝牙' })
+    },
+    openAdapter () {
+      let _this = this
+
+      bluetooth.openAdapter({
+        operateAdapter: true,
+        success(res) {
+          prompt.showToast({
+            message: '蓝牙初始化成功'
+          })
+
+          setTimeout(() => {
+            _this.startDevicesDiscovery()
+          }, 2000)
+        },
+        fail(data, code) {
+          prompt.showToast({
+            message: '蓝牙初始化失败'
+          })
+        }
+      })
+    },
+    startDevicesDiscovery () {
+      let _this = this
+
+      bluetooth.startDevicesDiscovery({
+        allowDuplicatesKey: true,
+        success(res) {
+          prompt.showToast({
+            message: '开始搜寻附近的蓝牙外围设备'
+          })
+          
+          bluetooth.ondevicefound = (res) => {
+              /*prompt.showToast({
+            message: res
+          })*/
+        res.devices.forEach(device => {
+          /*if (!device.name && !device.localName) {
+            return
+          }*/
+
+        prompt.showToast({
+            message: res
+          })
+          const foundDevices = _this.devices
+          const idx = _this.inArray(foundDevices, 'deviceId', device.deviceId)
+
+          if (idx === -1) {
+            _this.devices.push(device)
+          } else {
+            _this.devices.splice(idx, 1, device)
+          }
+
+          _this.deviceLen = _this.devices.length
+        })
+      }
+        },
+        fail(data,code){
+            prompt.showToast({
+            message: `蓝牙搜寻失败,code=${code}`
+          })
+        }
+      })
+    },
+    stopDevicesDiscovery () {
+      bluetooth.stopDevicesDiscovery({
+        success() {
+          prompt.showToast({
+            message: '停止扫描'
+          })
+        }
+      })
+    },
+    
+
+  }
+</script>

@@ -1,0 +1,195 @@
+<template>
+  <div class="background">
+    
+    <div class="main">
+      <!-- 注册信息 -->
+      <div class="input-frame">
+        <image  src="../Common/people.png"></image>
+        <div onclick="selectGender(1)">
+            <text class={{buttonMan}}>男士</text>
+        </div>
+        <div onclick="selectGender(0)">
+            <text class={{buttonWoman}}>女士</text>
+        </div>
+      </div>
+      <div class="input-frame">
+        <image src="../Common/my.png"></image>
+        <div onclick="selectStatus(1)">
+            <text class={{buttonV}}>游客</text>
+        </div>
+        <div onclick="selectStatus(2)">
+            <text class={{buttonM}}>管理员</text>
+        </div>
+        <div onclick="selectStatus(3)">
+            <text class={{buttonF}}>消防员</text>
+        </div>
+      </div>
+      
+      <div class="input-frame">
+        <image  src="../Common/myself.png"></image>
+        <input class="input-text" type="text" autocomplete="on" placeholder="昵称" onchange="input_info(1)"></input>
+      </div>
+      <div class="input-frame">
+        <image  src="../Common/phone.png"></image>
+        <input class="input-text" type="tel" autocomplete="on" placeholder="手机号" onchange="input_info(2)"></input>
+      </div>
+      <div class="input-frame">
+        <image  src="../Common/password.png"></image>
+        <input class="input-text" type="password" placeholder="密码" onchange="input_info(3)"></input>
+      </div>
+      <div class="input-frame">
+        <image  src="../Common/checkPwd.png"></image>
+        <input class="input-text" type="password" placeholder="确认密码" onchange="input_info(4)"></input>
+      </div>
+      <!-- 按钮 -->
+      <input class="button-1" type="button" value="完成注册" onclick="register"></input>
+      <input class="button-2" type="button" value="返 回" onclick="backLogin"></input>
+
+    </div>
+  </div>
+
+</template>
+
+<script>
+import router from '@system.router'
+import fetch from '@system.fetch'
+import prompt from '@system.prompt'
+
+export default{
+  data: {
+    buttonV: 'select-green', /*游客按钮 */
+    buttonM: 'select-white',  /*管理员按钮 */
+    buttonF: 'select-white',  /*消防员按钮 */
+    buttonMan:'select-green',
+    buttonWoman:'select-white',
+    uname:   '',
+    ugdr: 1,  //0女 1男
+    uphone: '1',
+    ustatus: 1,
+    upwd:     '',
+    againpwd:''
+  },
+  backLogin(){
+    router.push({
+      uri: '/Login'
+    })
+  },
+  register(){ 
+    if(this.againpwd!=this.upwd){
+      prompt.showDialog({
+        message: '前后密码不相同！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    else if(this.uphone.length!=11){
+      prompt.showDialog({
+        message: '手机号位数错误！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    else{
+      fetch.fetch({
+        url:'http://192.168.1.106:8000/user/register/',
+        data:{
+          uname:this.uname,
+          upwd:this.upwd,
+          ugdr:this.ugdr,
+          uphone:this.uphone,
+          ustatus: this.ustatus,
+        },
+        method:'post',
+        success: res=>{
+          //console.log(res.data)
+          //console.log(this.uname)
+          if(res.data=='success'){
+            prompt.showDialog({
+              message: '注册成功！',
+              buttons: [{text: '确定',color: '#33dd44'}],
+            })
+          }
+          else if(res.data=='name registered'){
+            prompt.showDialog({
+              message: '该用户名已被注册！',
+              buttons: [{text: '确定',color: '#33dd44'}],
+            })
+          }
+          else if(res.data=='phone registered'){
+            prompt.showDialog({
+              message: '该手机号已被注册！',
+              buttons: [{text: '确定',color: '#33dd44'}],
+            })
+          }
+          else if(res.data=='incomplete'){
+            prompt.showDialog({
+              message: '信息不完整！',
+              buttons: [{text: '确定',color: '#33dd44'}],
+            })
+          }
+        }
+      })
+    }
+  },
+  input_info(id,e){
+    if (id==1){
+      this.uname=e.value
+    }
+    else if (id==2){
+      this.uphone=e.value
+    }
+    else if (id==3){
+      this.upwd=e.value
+    }
+    else if (id==4){
+      this.againpwd=e.value
+    }
+  },
+  selectStatus(id){
+    this.ustatus=id
+    if(id==1){
+      this.buttonV='select-green'
+      this.buttonM='select-white'
+      this.buttonF='select-white'
+    }
+    else if(id==2){
+      this.buttonV='select-white'
+      this.buttonM='select-green'
+      this.buttonF='select-white'
+    }
+    else if(id==3){
+      this.buttonV='select-white'
+      this.buttonM='select-white'
+      this.buttonF='select-green'
+    }
+  },
+  selectGender(id){
+    this.ugdr=id
+    if(id==1){
+      this.buttonMan='select-green'
+      this.buttonWoman='select-white'
+    }
+    else if(id==0){
+      this.buttonMan='select-white'
+      this.buttonWoman='select-green'
+    }
+  } 
+}
+
+</script>
+
+<style>
+  @import '../common/css/common.css';
+
+  .select-white{
+    font-size: 32px;
+    font-family: '微软雅黑';
+    margin-left: 40px;
+    font-size: 30px;
+    color:white;
+  }
+  .select-green{
+    font-size: 35px;
+    font-family: '微软雅黑';
+    margin-left: 40px;
+    color:rgb(50, 250, 150);
+  }
+</style>

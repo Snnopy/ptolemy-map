@@ -1,0 +1,169 @@
+<template>
+  <div class="background">
+    <div class="main">
+     <image class="pic" src="../Common/logo.png"></image>
+      <!-- 重置密码，更改头像 -->
+      <!--<div class="white-blank" onclick="">
+        <input class="button-text" type="button" value="更改头像>"></input>
+      </div>-->
+      <div class="white-blank-1" onclick="">
+        <label class="button-text-1" >昵称:</label>
+        <label class="button-text-2" >{{uname}}</label>
+      </div>
+      <div class="white-blank-2"  onclick="">
+        <label class="button-text-1" >性别:</label>
+        <label class="button-text-2" >{{ugdr}}</label>
+      </div>
+      <div class="white-blank-3"  onclick="">
+        <label class="button-text-1" >身份:</label>
+        <label class="button-text-2" >{{ustatus}}</label>
+      </div>
+      <div class="white-blank-1"  onclick="">
+        <label class="button-text-3" onclick="">更改手机号></label>
+        <label class="button-text-2" >{{uphone}}</label>
+      </div>
+      <div class="white-blank-2"  onclick="resetpwd">
+        <label class="button-text-3" onclick="resetpwd">重置密码></label>
+      </div>
+      <div class="white-blank-3"  onclick="backLogin">
+        <label class="button-text-3" onclick="backLogin" style="color:rgba(255, 0, 0, 0.8);;">注销></label>
+      </div>
+      <div class="bottom-fill"></div>
+    </div>
+    
+  </div>
+
+</template>
+
+<script>
+import router from '@system.router'
+import fetch from '@system.fetch'
+
+export default{
+  data: {
+    uname:'none',
+    ugdr:'',
+    uphone:'',
+    ustatus:''
+  },
+  props:{},
+  onInit() {
+    this.uname=this.$app.$def.uname
+
+    fetch.fetch({
+      url:'http://192.168.1.106:8000/user/show/',
+      data:{
+        uname:this.uname
+      },
+      method:'post',
+      success: res=>{
+        console.log(res.data)
+        const data =JSON.parse(res.data)
+        this.uphone=data.uphone
+        if(data.ugdr==1){
+          this.ugdr='男'
+        }
+        else{
+          this.ugdr='女'
+        }
+        if(data.ustatus==1){
+          this.ustatus='游客'
+        }
+        else if(data.ustatus==2){
+          this.ustatus='管理员'
+        }
+        else{
+          this.ustatus='消防员'
+        }
+      }
+    })
+  },
+  resetpwd(){
+    /*如果登录成功，变颜色*/ 
+    router.push({
+      uri: '/ResetPwd'
+    })
+  },
+  backLogin(){
+    /*如果登录成功，变颜色*/ 
+    router.push({
+      uri: '/Login'
+    })
+  }
+
+}
+</script>
+
+<style>
+  .background{
+    background-color:#f0f0f0;
+    flex-direction:column;
+  }
+  .main{
+    flex-direction:column;
+    flex-wrap:wrap;  /* 换行 */
+    align-content:flex-start; /* 换行不出现空格 */ 
+    margin-top:100px;
+  }
+  .white-blank-1{
+    height: 80px;
+    width:100%;
+    margin-top:50px;
+    background-color:white;
+    text-align: left;	
+    border-bottom-width: 1px;
+    border-color:rgba(159, 158, 165, 0.2);
+  }
+  .white-blank-2{
+    height: 80px;
+    width:100%;
+    background-color:white;
+    text-align: left;	
+    border-bottom-width: 1px;
+    border-color:rgba(159, 158, 165, 0.2);
+  }
+  .white-blank-3{
+    height: 80px;
+    width:100%;
+    background-color:white;
+    text-align: left;	
+  }
+  .button-text-1{
+    font-size: 32px;
+    font-family: '微软雅黑';
+    margin-left:40px;
+    height:70px;
+    background-color:white;
+    color:rgba(159, 158, 165, 1);
+  }
+  .button-text-2{
+    font-size: 32px;
+    font-family: '微软雅黑';
+    margin-left:20px;
+    height:70px;
+    background-color:white;
+    color:rgba(159, 158, 165, 0.5);
+  }
+  .button-text-3{
+    font-size: 32px;
+    font-family: '微软雅黑';
+    margin-left:40px;
+    height:70px;
+    background-color:white;
+    color:rgb(145, 145, 156);
+  }
+  .title-text{
+    text-align: center;	
+    margin-top:40px;
+    font-size: 40px;
+    font-family: '微软雅黑';
+  }
+  .pic{
+      margin-left:40px;
+      width:200px;
+      height: 200px;
+  }
+  .bottom-fill {				
+    height: 1200px;	
+  }	
+</style>

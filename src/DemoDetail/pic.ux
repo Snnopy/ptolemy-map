@@ -1,0 +1,150 @@
+
+<template>
+  <div class="main">
+    <div class="footer-container">
+      
+      <input class="button" type="button" value="+" onclick="largeScale"></input>
+      <input class="button" type="button" value="-" onclick="smallScale"></input>
+      <input class="button" type="button" value="B" onclick="middleScale"></input>
+
+      <select class="button" onchange="pickMap" >
+        <option for="{{floor}}"   selected={{$item.selected}}>{{$item.id}}</option>
+      </select>
+    </div>
+    <div class="content">
+       <canvas id="indoormap" ontouchstart ='onMouseDown' ontouchmove='onMouseMove'></canvas>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+
+export default{
+  data:{
+    x1:'', //平移用的坐标
+    x2:'',
+    y1:'',
+    y2:'',
+    context2D:'',
+    img:'',
+    imgX:0,
+    imgY:0,
+    imgScale:1,
+    floor:[
+      {'id':-1,'selected':'true',pic:'../Common/1.jpg'},
+      {'id':2,'selected':'false',pic:'../Common/a.jpg'},
+      {'id':3,'selected':'false',pic:'../Common/3.jpg'}
+    ],
+  },
+  pickMap(e){
+    for(var i=0;i<this.floor.length;i++){
+      if(this.floor[i].id==e.newValue){
+        this.img.src=this.floor[i].pic
+      }
+    }
+    this.img.width=1000
+    this.img.height=1500
+    this.clearImage()
+    this.img.onload = () => {
+      this.drawImage(this.img,this.imgX,this.imgY,this.imgScale)
+    }   
+  },
+  onShow() {  
+    const canvas = this.$element('indoormap') //获取 canvas 组件
+    this.context2D = canvas.getContext('2d') //获取 canvas 绘图上下文
+    this.img = new Image()
+    for(var i=0;i<this.floor.length;i++){
+      if(this.floor[i].selected=='true'){
+        this.img.src=this.floor[i].pic
+      }
+    }
+    this.img.onload = () => {
+      this.drawImage(this.img,this.imgX,this.imgY,this.imgScale)
+    }   
+  },
+  
+  onMouseDown(event){
+    const data=event.touches[0]
+    this.x1=data.clientX
+    this.y1=data.clientY
+    //
+  },
+  onMouseMove(event){
+    //擦除原来的图片
+    this.clearImage()
+
+    const data=event.touches[0]
+    this.x2=data.clientX
+    this.y2=data.clientY
+    this.imgX+=this.x2-this.x1
+    this.imgY+=this.y2-this.y1
+    console.log(this.imgY)
+    //console.log(event.touches[0])
+    this.drawImage(this.img,this.imgX,this.imgY,this.imgScale)
+
+    this.x1=this.x2
+    this.y1=this.y2
+    
+  },
+  largeScale(){
+    this.clearImage()
+    if(this.imgScale<2.4){this.imgScale+=0.2}
+    this.drawImage(this.img,this.imgX,this.imgY,this.imgScale)
+  },
+  smallScale(){
+    this.clearImage()
+   
+    if(this.imgScale>0.6)this.imgScale-=0.2
+
+    this.drawImage(this.img,this.imgX,this.imgY,this.imgScale)
+  },
+  middleScale(){
+    this.clearImage()
+   
+    this.imgScale=1
+    this.imgX=0
+    this.imgY=0
+    this.drawImage(this.img,this.imgX,this.imgY,this.imgScale)
+  },
+  drawImage(img,imgX,imgY,imgScale){
+    this.context2D.drawImage(img,0,0,img.width,img.height,
+      imgX,imgY,img.width*imgScale,img.height*imgScale)
+  },
+  clearImage(){
+    this.context2D.clearRect(this.imgX,this.imgY,this.img.width*this.imgScale,this.img.height*this.imgScale)
+  }
+}
+</script>
+
+<style>
+  .main{
+    flex-direction:column;
+    flex-wrap:wrap;  
+    align-content:flex-start; 
+  }
+  .content{
+    width:100%;
+    height:1500px;
+  }
+  .footer-container {	
+      position: fixed;
+      flex-direction:column;	
+      width:100px;
+      height: 600px;	
+      top:400px;	
+      left:0;	
+      background-color: transparent;
+  }
+  .button{
+    text-align: center;
+    font-size: 40px;
+    font-family: '微软雅黑';
+    margin-top:40px;
+    width:100px;
+    height:100px;
+    color:white;
+    background: linear-gradient(rgb(50, 200, 150),rgb(0, 150, 120));
+  }
+
+</style>

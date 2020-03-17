@@ -1,0 +1,145 @@
+<template>
+  <div class="background">
+    <div class="main">
+      <swiper class="swiper" indicator="true" autoplay="true" interval="3000" loop="true">
+        <image class="swiper-item" for="{{slides}}" src="{{$item.image}}" ></image>
+      </swiper>
+      <text class="title-text">--通用功能--</text>
+      <div class="buttons">
+        <div class="input-frame" for="{{cate}}" onclick="toMap($item.id)">
+          <image  style="margin-left:30px;" src="{{$item.image}}"></image>
+          <text class="input-text">{{$item.name}}</text>
+        </div>
+      </div>
+      <text class="title-text">--特殊功能--</text>
+      <div class="buttons-2">
+        <div class="input-frame" for="{{cate2}}" onclick="toMap($item.id)">
+          <image  style="margin-left:30px;" src="{{$item.image}}"></image>
+          <text class="input-text">{{$item.name}}</text>
+        </div>
+      </div>
+      <div class="bottom-fill"></div>
+    </div>
+    
+  </div>
+
+</template>
+
+<script>
+
+import router from '@system.router'
+import prompt from '@system.prompt'
+
+export default{
+  props:{},
+  data: {
+    slides:[
+      {'id':0,'image':'http://192.168.1.106:8000/static/images/user.gif'},
+      {'id':1,'image':'http://192.168.1.106:8000/static/images/user2.gif'},
+      {'id':2,'image':'http://192.168.1.106:8000/static/images/user3.gif'}
+    ],
+    cate:[
+      {'id':0,'name':'应急逃生','image':'../Common/escape.png'},
+      {'id':1,'name':'模拟演习','image':'../Common/men.png'},
+      {'id':2,'name':'知识问答','image':'../Common/corperation.png'},
+      {'id':3,'name':'用户信息','image':'../Common/my.png'}
+    ],
+    cate2:[
+      {'id':4,'name':'设备管理','image':'../Common/monitor.png'},
+      {'id':5,'name':'应急救援','image':'../Common/extinguisher.png'}
+    ]
+  },
+  toMap(id){
+    const appDef = this.$app.$def
+    if(id==3){
+      router.push({
+        uri: '/Home',
+        params: {
+          flag: 2
+        }
+      })
+    }
+    else if(id==4 && appDef.ustatus!=2){
+      prompt.showDialog({
+        message: '抱歉，您不是管理员，没有相应权限！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    else if(id==5 && appDef.ustatus!=3){
+      prompt.showDialog({
+        message: '抱歉，您不是消防员，没有相应权限！',
+        buttons: [{text: '确定',color: '#33dd44'}],
+      })
+    }
+    else{
+      router.push({
+        uri: '/Home',
+        params: {flag: 1,flag2:id}
+      })
+    }
+  }
+}
+</script>
+
+<style>
+  .background{
+    background-color:#f0f0f0;
+    flex-direction:column;
+  }
+  .main{
+    flex-direction:column;
+    flex-wrap:wrap;  /* 换行 */
+    align-content:flex-start; /* 换行不出现空格 */ 
+    margin-top:100px;
+  }
+  .swiper {
+    height: 450px;
+    indicator-size: 15px;
+    indicator-color: #e3fafc;
+    indicator-selected-color: #3bc9db;
+  }
+  .swiper-item {
+    width: 100%;
+    height: 100%;
+  }
+  .buttons{
+    flex-direction:row;
+    flex-wrap:wrap;  /* 换行 */
+    align-content:flex-start; /* 换行不出现空格 */ 
+    margin-top:20px;
+    background-color: #17a98f;
+    width:100%;
+    height:230px;
+  }
+  .buttons-2{
+    flex-direction:row;
+    flex-wrap:wrap;  /* 换行 */
+    align-content:flex-start; /* 换行不出现空格 */ 
+    margin-top:20px;
+    background-color: #17a98f;
+    width:100%;
+    height:120px;
+  }
+  .input-frame {
+    margin-top: 30px;
+    margin-left:50px;
+    width:300px;
+    height:70px;
+    border-width: 2px;
+    border-color:white;
+  }
+  .input-text {
+    margin-left:20px;
+    font-size: 32px;
+    font-family: '微软雅黑';
+  }
+  .title-text{
+    text-align: center;	
+    margin-top:40px;
+    font-size: 40px;
+    font-family: '微软雅黑';
+  }
+  .bottom-fill {				
+    height: 300px;
+  }	
+</style>

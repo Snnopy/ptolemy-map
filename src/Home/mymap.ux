@@ -1,0 +1,56 @@
+<template>
+  <div class="background">
+    <text class="tab-text">{{message}}</text> 
+    <div class="bottom-fill"></div>
+  </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+
+module.exports = {
+  data: {
+    mapFlag:0 //默认为 0 
+  },
+  props: {
+    flag:0 //默认为 0 逃生规划，1 模拟演习，2 救援指引 3设备监控 4设备监控地图 5救援指引地图
+  },
+  onInit() {
+    this.mapFlag=this.flag
+    if(this.mapFlag ==0){
+      this.message='逃生规划地图'
+      
+    }
+    if(this.mapFlag ==1){
+      this.message='模拟演习地图'
+    }
+    if(this.mapFlag ==2){
+      this.message='知识问答'
+    }
+    if(this.mapFlag ==4){
+      this.message='设备监控地图'
+    }
+    if(this.mapFlag ==5){
+      this.message='救援指引地图'
+    }
+  
+  }
+}
+</script>
+
+<style>
+  .background{
+    background-color:#f0f0f0;
+    flex-direction:column;
+  }
+  .tab-text {	
+    margin-top:200px;
+    text-align: center;	
+    font-size: 60px;
+    font-family: '微软雅黑';
+  }
+  .bottom-fill {				
+    height: 1200px;		
+  }	
+</style>
